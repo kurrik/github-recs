@@ -16,15 +16,23 @@ TABLE_REPO_REPO = 'repo_repo'
 TABLE_USER_USER = 'user_user'
 TABLE_ADHOC     = 'adhoc'
 
+EXPORT_TABLES = [
+  TABLE_REPOS,
+  TABLE_USERS,
+  TABLE_REPO_REPO,
+  TABLE_USER_USER,
+]
+
 class BigQuery(object):
   def __init__(self, dataset):
     self.dataset = dataset
 
-  def __Path(self, table):
-    return '%s.%s' % (self.dataset, table)
-
-  def __Log_Cmd(self, cmd):
-    print 'Running:\n  %s' % ' '.join(cmd)
+  def __CopyTable(self, bucket, table, path):
+    url = 'gs://{0}/{1}/{2}'.format(bucket, self.dataset, table)
+    filepath = os.path.join(path, table)
+    if os.path.exists(filepath):
+      os.remove(filepath)
+    check_call(['gsutil', 'cp', url, path])
 
   def __Exists(self, table):
     cmd = ['bq', 'show', self.__Path(table)]
@@ -34,6 +42,12 @@ class BigQuery(object):
   def __ExportTable(self, bucket, table):
     url = 'gs://{0}/{1}/{2}'.format(bucket, self.dataset, table)
     check_call(['bq', 'extract', self.__Path(table), url])
+
+  def __Log_Cmd(self, cmd):
+    print 'Running:\n  %s' % ' '.join(cmd)
+
+  def __Path(self, table):
+    return '%s.%s' % (self.dataset, table)
 
   def __Query(self, sql, table):
     if self.__Exists(table):
@@ -50,6 +64,13 @@ class BigQuery(object):
     self.__Log_Cmd(cmd)
     check_call(' '.join(cmd), shell=True)
 
+  def Copy(self, bucket, outputdir):
+    path = os.path.join(outputdir, self.dataset)
+    if not os.path.exists(path):
+      os.makedirs(path)
+    for table in EXPORT_TABLES:
+      self.__CopyTable(bucket, table, path)
+
   def ClearTable(self, table):
     cmd = ['bq', 'rm', '-f', self.__Path(table)]
     self.__Log_Cmd(cmd)
@@ -64,13 +85,7 @@ class BigQuery(object):
     check_call(['bq', 'mk', self.dataset])
 
   def Export(self, bucket):
-    tables = [
-      TABLE_REPOS,
-      TABLE_USERS,
-      TABLE_REPO_REPO,
-      TABLE_USER_USER,
-    ]
-    for table in tables:
+    for table in EXPORT_TABLES:
       self.__ExportTable(bucket, table)
 
   def SelectEvents(self, select_file):
@@ -181,7 +196,7 @@ class BigQuery(object):
     if clear:
       query.ClearDataset()
     query.CreateDataset()
-    query.SelectEvents('%s.sql' % args.dataset)
+    query.SelectEvents(select_file)
     query.SelectRepos()
     query.SelectUsers()
     query.SelectRepoUser()
@@ -189,25 +204,32 @@ class BigQuery(object):
     query.SelectUserUser()
 
 if __name__ == '__main__':
-  actions = ['select', 'query', 'export']
+  actions = ['select', 'query', 'export', 'copy_local']
   parser = argparse.ArgumentParser()
-  parser.add_argument('--dataset', default='golang', type=str)
-  parser.add_argument('--bucket', 'kurrik_cs224w', type=str)
+  parser.add_argument('--dataset', default='golang_recent', type=str)
+  parser.add_argument('--bucket', default='kurrik_cs224w', type=str)
   parser.add_argument('--clear', action='store_true')
   parser.add_argument('--action', choices=actions, default='select')
-  parser.add_argument('--user', type=str, default='kurrik')
+  parser.add_argument('--user', default='kurrik', type=str)
+  parser.add_argument('--outputdir', default='data', type=str)
   args = parser.parse_args()
 
   query = BigQuery(args.dataset)
 
   try:
     if args.action == 'select':
-      path = os.path.join(os.path.dirname(__file__), '%s.sql' % args.dataset)
+      path = os.path.join(os.path.dirname(__file__), 'queries', '%s.sql' % args.dataset)
+      if not os.path.isfile(path):
+        raise IOError('Invalid dataset, no query at %s' % path)
       query.Select(path, args.clear)
     elif args.action == 'query':
       query.QueryUser(args.user)
     elif args.action == 'export':
       query.Export(args.bucket)
+    elif args.action == 'copy_local':
+      if not os.path.isdir(args.outputdir):
+        raise IOError('Output directory "%s" did not exist' % args.outputdir)
+      query.Copy(args.bucket, args.outputdir)
   except CalledProcessError, ex:
     print
     print '--' * 40
