@@ -8,19 +8,23 @@ import sys
 import argparse
 from subprocess import check_call, call, CalledProcessError
 
-TABLE_EVENTS    = 'events'
-TABLE_REPOS     = 'repos'
-TABLE_USERS     = 'users'
-TABLE_REPO_USER = 'repo_user'
-TABLE_REPO_REPO = 'repo_repo'
-TABLE_USER_USER = 'user_user'
-TABLE_ADHOC     = 'adhoc'
+TABLE_EVENTS     = 'events'
+TABLE_REPOS      = 'repos'
+TABLE_USERS      = 'users'
+TABLE_REPO_USER  = 'repo_user'
+TABLE_REPO_REPO  = 'repo_repo'
+TABLE_USER_USER  = 'user_user'
+TABLE_REPO_TRANS = 'repo_trans'
+TABLE_USER_TRANS = 'user_trans'
+TABLE_ADHOC      = 'adhoc'
 
 EXPORT_TABLES = [
   TABLE_REPOS,
   TABLE_USERS,
   TABLE_REPO_REPO,
   TABLE_USER_USER,
+  TABLE_REPO_TRANS,
+  TABLE_USER_TRANS,
 ]
 
 class BigQuery(object):
@@ -167,6 +171,26 @@ class BigQuery(object):
       self.__Path(TABLE_REPO_USER))
     self.__Query(sql, TABLE_USER_USER)
 
+  def SelectRepoTrans(self):
+    sql = """
+      SELECT user_id, GROUP_CONCAT(STRING(repo_id)) AS repo_ids
+      FROM [{0}]
+      GROUP EACH BY user_id
+      ORDER BY user_id
+    """.format(
+        self.__Path(TABLE_REPO_USER))
+    self.__Query(sql, TABLE_REPO_TRANS)
+
+  def SelectUserTrans(self):
+    sql = """
+      SELECT repo_id, GROUP_CONCAT(STRING(user_id)) AS user_ids
+      FROM [{0}]
+      GROUP EACH BY repo_id
+      ORDER BY repo_id
+    """.format(
+        self.__Path(TABLE_REPO_USER))
+    self.__Query(sql, TABLE_USER_TRANS)
+
   def QueryUser(self, name):
     sql = """
       SELECT
@@ -202,6 +226,8 @@ class BigQuery(object):
     query.SelectRepoUser()
     query.SelectRepoRepo()
     query.SelectUserUser()
+    query.SelectRepoTrans()
+    query.SelectUserTrans()
 
 if __name__ == '__main__':
   actions = ['select', 'query', 'export', 'copy_local']
