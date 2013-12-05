@@ -24,3 +24,16 @@ Build  a dataset:
 K-Fold the data
 
     python src/kfold/kfold.py --k=4 --input=data --dataset=golang_recent
+
+Train Apriori rules
+
+    python src/apriori/apriori.py \
+      --ruleset=data/golang_recent/kfold/repo_trans.ruleset_0 \
+      --train=data/golang_recent/kfold/repo_trans.train_0 \
+      --minsup=2 --clear
+
+Test Apriori rules
+
+    python src/apriori/apriori.py \
+      --ruleset=data/golang_recent/kfold/repo_trans.ruleset_0 \
+      --test=data/golang_recent/kfold/repo_trans.test_0

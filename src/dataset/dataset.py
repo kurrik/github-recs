@@ -232,11 +232,11 @@ class BigQuery(object):
 if __name__ == '__main__':
   actions = ['select', 'query', 'export', 'copy_local']
   parser = argparse.ArgumentParser()
-  parser.add_argument('--dataset', default='golang_recent', type=str)
-  parser.add_argument('--bucket', default='kurrik_cs224w', type=str)
-  parser.add_argument('--clear', action='store_true')
-  parser.add_argument('--action', choices=actions, default='select')
-  parser.add_argument('--user', default='kurrik', type=str)
+  parser.add_argument('--dataset',   default='golang_recent', type=str)
+  parser.add_argument('--bucket',    default='kurrik_cs224w', type=str)
+  parser.add_argument('--clear',     action='store_true')
+  parser.add_argument('--action',    default='select', choices=actions)
+  parser.add_argument('--user',      default='kurrik', type=str)
   parser.add_argument('--outputdir', default='data', type=str)
   args = parser.parse_args()
 
