@@ -30,7 +30,7 @@ Train Apriori rules
     python src/apriori/apriori.py \
       --ruleset=data/golang_recent/kfold/repo_trans.ruleset_0 \
       --train=data/golang_recent/kfold/repo_trans.train_0 \
-      --minsup=2 --clear
+      --minsup=2 --minconf=100 --clear
 
 Test Apriori rules
 

@@ -111,7 +111,7 @@ def ScoreFile(rules, testpath):
   with open(testpath) as f:
     for line in f:
       count += 1
-      if count % 100 == 0:
+      if count % 20 == 0:
         PrintProgress(count, length)
       trans = frozenset(line.split(' '))
       cache = {}
@@ -139,6 +139,7 @@ def Test(ruleset, test, outfile):
   with open(outfile, 'w') as f:
     for key, count in counts.iteritems():
       f.write("%s,%s\n" % (key, count))
+      print '%s: %s' % (key, count)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
