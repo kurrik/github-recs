@@ -3,6 +3,14 @@ Github Recs
 
 Exploration of building a Github recommendations system.
 
+Preqs
+-----
+
+Follow the instructions in:
+
+  * `src/dataset/README.md`
+  * `lib/README.md`
+
 Usage
 -----
 

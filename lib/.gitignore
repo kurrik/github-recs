@@ -1,0 +1,3 @@
+*.o
+apriori/apriori/src/apriori
+apriori/apriori/src/apriacc
