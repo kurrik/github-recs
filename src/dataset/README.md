@@ -14,5 +14,5 @@ gsutil - https://developers.google.com/storage/docs/gsutil_install
 
 bq - https://developers.google.com/bigquery/bq-command-line-tool
 
-    sudo easy_install bq
+    sudo easy_install bigquery
     bq init
