@@ -37,3 +37,18 @@ Test Apriori rules
     python src/apriori/apriori.py \
       --ruleset=data/golang_recent/kfold/repo_trans.ruleset_0 \
       --test=data/golang_recent/kfold/repo_trans.test_0
+
+Train Hierarchy rules
+
+    python src/hierarchy/hierarchy.py \
+      --ruleset=data/golang_recent/kfold/user_user.hierarchy_0 \
+      --train=data/golang_recent/kfold/user_user.train_0 \
+      --draw_likelihood --iter=10000 --clear
+      
+Test Hierarchy rules
+
+    python src/hierarchy/hierarchy.py \
+      --ruleset=data/golang_recent/kfold/user_user.hierarchy_0 \
+      --test=data/golang_recent/kfold/user_user.test_0  \
+      --clear --thresh=0.005
+

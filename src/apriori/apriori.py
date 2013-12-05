@@ -150,7 +150,7 @@ if __name__ == '__main__':
   parser.add_argument('--minrepos', default=2, type=int)
   parser.add_argument('--maxrepos', default=1000, type=int)
   parser.add_argument('--train',    default=None, type=str)
-  parser.add_argument('--ruleset', default=None, type=str)
+  parser.add_argument('--ruleset',  default=None, type=str)
   parser.add_argument('--test',     default=None, type=str)
   parser.add_argument('--clear',    action='store_true')
   args = parser.parse_args()
