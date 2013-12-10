@@ -25,9 +25,9 @@ def ParseFile(path, metric):
       return 0.0
   return 0.0
 
-def Graph(datapath, graphpath):
+def Graph(datapath, graphpath, label):
   with open(os.path.join(os.path.dirname(__file__), 'graph.r')) as f:
-    sp.call(['R', '--slave', '--no-save', datapath, graphpath], stdin=f)
+    sp.call(['R', '--slave', '--no-save', datapath, graphpath, label], stdin=f)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -64,4 +64,4 @@ if __name__ == '__main__':
           for j in range(n):
             fout.write('\t' + '%4.20f' % data[i,j])
           fout.write('\n')
-      Graph(outpath, graphpath)
+      Graph(outpath, graphpath, metric)

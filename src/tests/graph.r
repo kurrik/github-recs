@@ -1,9 +1,10 @@
 # Run with:
-#   R --no-save --slave [path/to/data] [out] < graph.r
+#   R --no-save --slave [path/to/data] [out] [label] < graph.r
 
 args <- commandArgs();
 dpth <- args[4];
 opth <- args[5];
+main <- args[6];
 data <- read.table(dpth, header=TRUE, skip=0, sep='\t')
 
 m    <- dim(data)[1]
@@ -19,8 +20,8 @@ options(scipen=5)
 
 barplot(
   plotdata,
-  main="MCC",
-  ylab= "MCC",
+  main=main,
+  ylab=main,
   beside=TRUE,
   col=rainbow(m)
 );
