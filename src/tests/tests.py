@@ -230,7 +230,21 @@ if __name__ == '__main__':
         ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 2500],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 3000],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+      ],
+      'logistic': [
+        ['repo_train', 'repos', 0.00001],
+        ['user_train', 'users', LOGISTIC_THRESH],
+      ],
+    },
+    'ruby_recent': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, APRIORI_MINCONF),
+        ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
+      ],
+      'hierarchy': [
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 3000],
         ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
       ],
       'logistic': [
