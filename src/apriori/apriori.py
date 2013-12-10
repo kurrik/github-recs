@@ -151,6 +151,7 @@ if __name__ == '__main__':
   parser.add_argument('--maxrepos', default=1000, type=int)
   parser.add_argument('--train',    default=None, type=str)
   parser.add_argument('--ruleset',  default=None, type=str)
+  parser.add_argument('--results',  default=None, type=str)
   parser.add_argument('--test',     default=None, type=str)
   parser.add_argument('--clear',    action='store_true')
   args = parser.parse_args()
@@ -167,12 +168,13 @@ if __name__ == '__main__':
       Apriori(args.binary, tmpfile, args.ruleset, args.minsup, args.minconf)
 
   if args.test is not None:
-    outfile = '{0}.results'.format(args.test)
-    if os.path.isfile(outfile) and args.clear == False:
-      print 'Skipping test %s because output %s exists' % (args.test, outfile)
+    if args.results is None:
+      parser.exit(1, 'Results output file must be specified')
+    if os.path.isfile(args.results) and args.clear == False:
+      print 'Skipping test %s because output %s exists' % (args.test, args.results)
     else:
       if not os.path.isfile(args.ruleset):
         parser.exit(1, 'Ruleset file must exist')
       tmpfile = os.path.join(args.tmpdir, 'apriori_test_tmp')
       Convert(args.test, tmpfile, args.minrepos, args.maxrepos)
-      Test(args.ruleset, tmpfile, outfile)
+      Test(args.ruleset, tmpfile, args.results)

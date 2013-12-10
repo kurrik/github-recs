@@ -67,9 +67,8 @@ def DrawDendrogram(dend, r, tmpdir, out):
     call(['R', '--slave', '--no-save', datafile, labelfile, out], stdin=f)
 
 def Test(args):
-  outfile = '{0}.results'.format(args.test)
-  if os.path.isfile(outfile) and args.clear == False:
-    print 'Skipping test because "%s" exists' % outfile
+  if os.path.isfile(args.results) and args.clear == False:
+    print 'Skipping test because "%s" exists' % args.results
     return
 
   tester = dendrogram.Tester(args.ruleset)
@@ -115,8 +114,8 @@ def Test(args):
         counts['TN'] += 1
   print
 
-  print "Outputting counts to %s" % outfile
-  with open(outfile, 'w') as f:
+  print "Outputting counts to %s" % args.results
+  with open(args.results, 'w') as f:
     for key, count in counts.iteritems():
       f.write("%s,%s\n" % (key, count))
       print '%s: %s' % (key, count)
@@ -178,6 +177,7 @@ if __name__ == '__main__':
   parser.add_argument('--iter',            default=10000, type=int)
   parser.add_argument('--train',           default=None, type=str)
   parser.add_argument('--ruleset',         default=None, type=str)
+  parser.add_argument('--results',         default=None, type=str)
   parser.add_argument('--test',            default=None, type=str)
   parser.add_argument('--thresh',          default=0.01, type=float)
   parser.add_argument('--clear',           action='store_true')

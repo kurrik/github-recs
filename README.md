@@ -44,7 +44,7 @@ Train Hierarchy rules
       --ruleset=data/golang_recent/kfold/user_user.hierarchy_0 \
       --train=data/golang_recent/kfold/user_user.train_0 \
       --draw_likelihood --iter=10000 --clear
-      
+
 Test Hierarchy rules
 
     python src/hierarchy/hierarchy.py \

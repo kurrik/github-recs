@@ -23,8 +23,8 @@ def MakeKFold(k, path):
 
   for offset in range(k):
     print "Generating %s-fold #%s" % (k, offset)
-    testp = os.path.join(outdir, '{0}.test_{1}'.format(pathfile, offset))
-    trainp = os.path.join(outdir, '{0}.train_{1}'.format(pathfile, offset))
+    testp = os.path.join(outdir, '{0}.{1}.test'.format(pathfile, offset))
+    trainp = os.path.join(outdir, '{0}.{1}.train'.format(pathfile, offset))
     print "  Reading\n    %s\n  Writing\n    %s\n    %s" % (path, testp, trainp)
     with open(testp, 'w') as testf:
       with open(trainp, 'w') as trainf:
