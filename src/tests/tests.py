@@ -146,7 +146,7 @@ class TestDataset(object):
     for trainpath in glob.iglob(self.__dp(trainglob)):
       i = int(trainpath.split('.')[1])
       prefix     = 'kfold/%s.%i' % (repo, i)
-      postfix    = ('%i_%f' % (iterations, thresh)).replace('.', 'p')
+      postfix    = ('%i_%2.10f' % (iterations, thresh)).replace('.', 'p')
       rulepath   = self.__dp('%s.ruleset_%s' % (prefix, postfix))
       resultpath = self.__dp('%s.results_%s' % (prefix, postfix))
       testpath   = self.__dp('%s.test'       % prefix)
@@ -181,7 +181,7 @@ class TestDataset(object):
     for trainpath in glob.iglob(self.__dp(trainglob)):
       i = int(trainpath.split('.')[1])
       prefix     = 'kfold/%s.%i' % (repo, i)
-      postfix    = ('%f' % thresh).replace('.', 'p')
+      postfix    = ('%2.10f' % thresh).replace('.', 'p')
       rulepath   = self.__dp('%s.ruleset_%s' % (prefix, postfix))
       resultpath = self.__dp('%s.results_%s' % (prefix, postfix))
       testpath   = self.__dp('%s.test'       % prefix)
@@ -236,6 +236,20 @@ if __name__ == '__main__':
       'logistic': [
         ['repo_train', 'repos', 0.00001],
         ['user_train', 'users', LOGISTIC_THRESH],
+      ],
+    },
+    'top_starred_repos': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, 50),
+        ('user_trans', 'users', APRIORI_MINSUP, 50),
+      ],
+      'hierarchy': [
+        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+      ],
+      'logistic': [
+        ['repo_train', 'repos', 0.000005],
+        ['user_train', 'users', 0.000005],
       ],
     },
     'ruby_recent': {
