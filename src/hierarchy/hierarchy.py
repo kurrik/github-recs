@@ -94,13 +94,15 @@ def Test(args):
   for nida, nidb in combinations(nodes, 2):
     if count % 100 == 0:
       PrintProgress(count, total)
+    count += 1
+    if args.sample and count % 51 != 0:
+      continue
     prob = tester.prob(nida, nidb)
     is_edge = '%i,%i' % (nida, nidb) in edges
     probs.append((prob, is_edge))
-    count += 1
   probs.sort(key=itemgetter(0), reverse=True)
   thresh = args.thresh * count
-  for i in xrange(count):
+  for i in xrange(len(probs)):
     is_edge = probs[i][1]
     if i <= thresh:
       if is_edge:
@@ -186,6 +188,7 @@ if __name__ == '__main__':
   parser.add_argument('--test',            default=None, type=str)
   parser.add_argument('--thresh',          default=0.01, type=float)
   parser.add_argument('--clear',           action='store_true')
+  parser.add_argument('--sample',          default=False, type=bool)
   args = parser.parse_args()
 
   if args.ruleset is None:

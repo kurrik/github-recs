@@ -94,7 +94,7 @@ class TestDataset(object):
       print
       print '--' * 40
       print 'ERROR: "%s" exited with nonzero response' % ' '.join(ex.cmd)
-      os.exit(1)
+      sys.exit(1)
 
   def KFold(self):
     """ Creates every kfold train/test file."""
@@ -141,7 +141,7 @@ class TestDataset(object):
       results.AddFiles(resultpaths)
       results.Save(outpath)
 
-  def Hierarchy(self, repo, mapping, thresh, iterations):
+  def Hierarchy(self, repo, mapping, thresh, iterations, sample):
     trainglob = 'kfold/%s.*.train' % repo
     resultpaths = []
     for trainpath in glob.iglob(self.__dp(trainglob)):
@@ -165,6 +165,7 @@ class TestDataset(object):
         self.__call([
           'python',
           'src/hierarchy/hierarchy.py',
+          '--sample=%s'  % sample,
           '--thresh=%2.10f'  % thresh,
           '--ruleset=%s' % rulepath,
           '--test=%s'    % testpath,
@@ -231,8 +232,8 @@ if __name__ == '__main__':
         ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 3000],
-        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 3000, False],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER, False],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
@@ -245,8 +246,8 @@ if __name__ == '__main__':
         ('user_trans', 'users', APRIORI_MINSUP, 50),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
-        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER, False],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER, False],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.000005],
@@ -259,8 +260,8 @@ if __name__ == '__main__':
         ('user_trans', 'users', 2, 30),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000],
-        ['user_user', 'users', HIERARCHY_THRESH, 1000],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000, False],
+        ['user_user', 'users', HIERARCHY_THRESH, 1000, False],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
@@ -273,8 +274,8 @@ if __name__ == '__main__':
         ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
-        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER, False],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER, False],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
@@ -287,8 +288,8 @@ if __name__ == '__main__':
         ('user_trans', 'users', 5, 100),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000],
-        ['user_user', 'users', HIERARCHY_THRESH, 1000],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000, True],
+        ['user_user', 'users', HIERARCHY_THRESH, 1000, True],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
@@ -302,7 +303,7 @@ if __name__ == '__main__':
     ds.KFold()
     for (table, mapping, minsup, minconf) in conf['apriori']:
       ds.Apriori(table, mapping, minsup, minconf)
-    for (table, mapping, thresh, iterations) in conf['hierarchy']:
-      ds.Hierarchy(table, mapping, thresh, iterations)
+    for (table, mapping, thresh, iterations, sample) in conf['hierarchy']:
+      ds.Hierarchy(table, mapping, thresh, iterations, sample)
     for (table, mapping, thresh) in conf['logistic']:
       ds.Logistic(table, mapping, thresh)
