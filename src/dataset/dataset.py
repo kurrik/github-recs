@@ -261,7 +261,7 @@ class BigQuery(object):
         JOIN EACH [{0}] AS b
         ON a.id_b = b.id_a
       WHERE a.id_a != b.id_b
-      GROUP BY id_a, id_b, id, repos_ratio_a, repos_ratio_b
+      GROUP EACH BY id_a, id_b, id, repos_ratio_a, repos_ratio_b
     """.format(self.__Path(TABLE_USER_EDGES))
     self.__Query(sql, TABLE_USER_TRAIN_CAND)
 

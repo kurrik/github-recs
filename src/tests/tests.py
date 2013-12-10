@@ -240,12 +240,12 @@ if __name__ == '__main__':
     },
     'ruby_recent': {
       'apriori': [
-        ('repo_trans', 'repos', APRIORI_MINSUP, APRIORI_MINCONF),
-        ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
+        ('repo_trans', 'repos', 5, 100),
+        ('user_trans', 'users', 5, 100),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 3000],
-        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000],
+        ['user_user', 'users', HIERARCHY_THRESH, 1000],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
