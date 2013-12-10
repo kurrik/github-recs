@@ -252,6 +252,34 @@ if __name__ == '__main__':
         ['user_train', 'users', 0.000005],
       ],
     },
+    'top_pushed_repos': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, 50),
+        ('user_trans', 'users', APRIORI_MINSUP, 50),
+      ],
+      'hierarchy': [
+        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+      ],
+      'logistic': [
+        ['repo_train', 'repos', 0.00001],
+        ['user_train', 'users', 0.00001],
+      ],
+    },
+    'top_user_repos': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, APRIORI_MINCONF),
+        ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
+      ],
+      'hierarchy': [
+        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+      ],
+      'logistic': [
+        ['repo_train', 'repos', 0.00001],
+        ['user_train', 'users', 0.00001],
+      ],
+    },
     'ruby_recent': {
       'apriori': [
         ('repo_trans', 'repos', 5, 100),
