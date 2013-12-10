@@ -110,97 +110,145 @@ class TestDataset(object):
       '--dataset=%s' % self.dataset,
     ])
 
-  def Apriori(self, minsup, minconf):
-    repos = {
-      'repo_trans': 'repos',
-      'user_trans': 'users',
-    }
-    for repo, mapping in repos.iteritems():
-      trainglob = 'kfold/%s.*.train' % repo
-      resultpaths = []
-      for trainpath in glob.iglob(self.__dp(trainglob)):
-        i = int(trainpath.split('.')[1])
-        prefix     = 'kfold/%s.%i' % (repo, i)
-        rulepath   = self.__dp('%s.ruleset_%i_%i' % (prefix, minsup, minconf))
-        resultpath = self.__dp('%s.results_%i_%i' % (prefix, minsup, minconf))
-        testpath   = self.__dp('%s.test'          % (prefix))
-        resultpaths.append(resultpath)
-        if not self.__exists(rulepath):
-          self.__call([
-            'python',
-            'src/apriori/apriori.py',
-            '--ruleset=%s' % rulepath,
-            '--train=%s'   % trainpath,
-            '--minsup=%i'  % minsup,
-            '--minconf=%i' % minconf,
-          ])
-        if not self.__exists(resultpath):
-          self.__call([
-            'python',
-            'src/apriori/apriori.py',
-            '--ruleset=%s' % rulepath,
-            '--test=%s'    % testpath,
-            '--results=%s' % resultpath,
-          ])
-      outpath = self.__rp('%s_apriori_%i_%i.csv' % (mapping, minsup, minconf))
-      if not self.__exists(outpath):
-        results = ResultCounter()
-        results.AddFiles(resultpaths)
-        results.Save(outpath)
+  def Apriori(self, repo, mapping, minsup, minconf):
+    trainglob = 'kfold/%s.*.train' % repo
+    resultpaths = []
+    for trainpath in glob.iglob(self.__dp(trainglob)):
+      i = int(trainpath.split('.')[1])
+      prefix     = 'kfold/%s.%i' % (repo, i)
+      rulepath   = self.__dp('%s.ruleset_%i_%i' % (prefix, minsup, minconf))
+      resultpath = self.__dp('%s.results_%i_%i' % (prefix, minsup, minconf))
+      testpath   = self.__dp('%s.test'          % (prefix))
+      resultpaths.append(resultpath)
+      if not self.__exists(rulepath):
+        self.__call([
+          'python',
+          'src/apriori/apriori.py',
+          '--ruleset=%s' % rulepath,
+          '--train=%s'   % trainpath,
+          '--minsup=%i'  % minsup,
+          '--minconf=%i' % minconf,
+        ])
+      if not self.__exists(resultpath):
+        self.__call([
+          'python',
+          'src/apriori/apriori.py',
+          '--ruleset=%s' % rulepath,
+          '--test=%s'    % testpath,
+          '--results=%s' % resultpath,
+        ])
+    outpath = self.__rp('%s_apriori_%i_%i.csv' % (mapping, minsup, minconf))
+    if not self.__exists(outpath):
+      results = ResultCounter()
+      results.AddFiles(resultpaths)
+      results.Save(outpath)
 
-  def Hierarchy(self, thresh):
-    repos = {
-      'repo_repo': ('repos', 10),
-      'user_user': ('users', 10000),
-    }
-    for repo, (mapping, iterations) in repos.iteritems():
-      trainglob = 'kfold/%s.*.train' % repo
-      resultpaths = []
-      for trainpath in glob.iglob(self.__dp(trainglob)):
-        i = int(trainpath.split('.')[1])
-        prefix     = 'kfold/%s.%i' % (repo, i)
-        postfix    = ('%i_%f' % (iterations, thresh)).replace('.', 'p')
-        rulepath   = self.__dp('%s.ruleset_%s' % (prefix, postfix))
-        resultpath = self.__dp('%s.results_%s' % (prefix, postfix))
-        testpath   = self.__dp('%s.test'       % prefix)
-        resultpaths.append(resultpath)
-        if not self.__exists(rulepath):
-          self.__call([
-            'python',
-            'src/hierarchy/hierarchy.py',
-            '--draw_likelihood',
-            '--ruleset=%s' % rulepath,
-            '--train=%s'   % trainpath,
-            '--iter=%i'    % iterations,
-          ])
-        if not self.__exists(resultpath):
-          self.__call([
-            'python',
-            'src/hierarchy/hierarchy.py',
-            '--thresh=%f'  % thresh,
-            '--ruleset=%s' % rulepath,
-            '--test=%s'    % testpath,
-            '--results=%s' % resultpath,
-          ])
-      outpath = self.__rp('%s_hierarchy_%s.csv' % (mapping, postfix))
-      if not self.__exists(outpath):
-        results = ResultCounter()
-        results.AddFiles(resultpaths)
-        results.Save(outpath)
+  def Hierarchy(self, repo, mapping, thresh, iterations):
+    trainglob = 'kfold/%s.*.train' % repo
+    resultpaths = []
+    for trainpath in glob.iglob(self.__dp(trainglob)):
+      i = int(trainpath.split('.')[1])
+      prefix     = 'kfold/%s.%i' % (repo, i)
+      postfix    = ('%i_%f' % (iterations, thresh)).replace('.', 'p')
+      rulepath   = self.__dp('%s.ruleset_%s' % (prefix, postfix))
+      resultpath = self.__dp('%s.results_%s' % (prefix, postfix))
+      testpath   = self.__dp('%s.test'       % prefix)
+      resultpaths.append(resultpath)
+      if not self.__exists(rulepath):
+        self.__call([
+          'python',
+          'src/hierarchy/hierarchy.py',
+          '--draw_likelihood',
+          '--ruleset=%s' % rulepath,
+          '--train=%s'   % trainpath,
+          '--iter=%i'    % iterations,
+        ])
+      if not self.__exists(resultpath):
+        self.__call([
+          'python',
+          'src/hierarchy/hierarchy.py',
+          '--thresh=%f'  % thresh,
+          '--ruleset=%s' % rulepath,
+          '--test=%s'    % testpath,
+          '--results=%s' % resultpath,
+        ])
+    outpath = self.__rp('%s_hierarchy_%s.csv' % (mapping, postfix))
+    if not self.__exists(outpath):
+      results = ResultCounter()
+      results.AddFiles(resultpaths)
+      results.Save(outpath)
+
+  def Logistic(self, thresh):
+    trainglob = 'kfold/%s.*.train' % repo
+    resultpaths = []
+    for trainpath in glob.iglob(self.__dp(trainglob)):
+      i = int(trainpath.split('.')[1])
+      prefix     = 'kfold/%s.%i' % (repo, i)
+      postfix    = ('%f' % thresh).replace('.', 'p')
+      rulepath   = self.__dp('%s.ruleset_%s' % (prefix, postfix))
+      resultpath = self.__dp('%s.results_%s' % (prefix, postfix))
+      testpath   = self.__dp('%s.test'       % prefix)
+      resultpaths.append(resultpath)
+      if not self.__exists(rulepath):
+        self.__call([
+          'python',
+          'src/logistic/logistic.py',
+          '--theta=%s'  % rulepath,
+          '--train=%s'  % trainpath,
+          '--thresh=%f' % thresh,
+        ])
+      if not self.__exists(resultpath):
+        self.__call([
+          'python',
+          'src/logistic/logistic.py',
+          '--theta=%s'   % rulepath,
+          '--test=%s'    % testpath,
+          '--results=%s' % resultpath,
+        ])
+    outpath = self.__rp('%s_logistic_%s.csv' % (mapping, postfix))
+    if not self.__exists(outpath):
+      results = ResultCounter()
+      results.AddFiles(resultpaths)
+      results.Save(outpath)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--resultroot', default='results', type=str)
-  parser.add_argument('--dataroot',   default='data', type=str)
-  parser.add_argument('--dataset',    default='golang_recent', type=str)
-  parser.add_argument('--k',          default=3, type=int)
-  parser.add_argument('--minsup',     default=3, type=int)
-  parser.add_argument('--minconf',    default=80, type=int)
-  parser.add_argument('--thresh',    default=0.005, type=float)
+  parser.add_argument('--resultroot',       default='results', type=str)
+  parser.add_argument('--dataroot',         default='data', type=str)
+  parser.add_argument('--dataset',          default='golang_recent', type=str)
+  parser.add_argument('--k',                default=3, type=int)
   args = parser.parse_args()
 
-  ds = TestDataset(args.k, args.resultroot, args.dataroot, args.dataset)
-  ds.KFold()
-  ds.Apriori(args.minsup, args.minconf)
-  ds.Hierarchy(args.thresh)
+  APRIORI_MINSUP   = 3
+  APRIORI_MINCONF  = 80
+  HIERARCHY_THRESH = 0.005
+  HIERARCHY_ITER   = 10000
+  LOGISTIC_THRESH  = 0.0000005
+
+  runs = {
+    'golang_recent': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, APRIORI_MINCONF),
+        ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
+      ],
+      'hierarchy': [
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 10],
+        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+      ],
+      'logistic': [
+        ['repo_train', 'repos', LOGISTIC_THRESH],
+        ['user_train', 'users', LOGISTIC_THRESH],
+      ],
+    },
+  }
+
+  for dataset, conf in runs.iteritems():
+    ds = TestDataset(args.k, args.resultroot, args.dataroot, dataset)
+    ds.KFold()
+    for (table, mapping, minsup, minconf) in conf['apriori']:
+      ds.Apriori(table, mapping, minsup, minconf)
+    for (table, mapping, thresh, iterations) in conf['hierarchy']:
+      ds.Hierarchy(table, mapping, thresh, iterations)
+    for (table, mapping, thresh) in conf['logistic']:
+      ds.Logistic(table, mapping, thresh)
 

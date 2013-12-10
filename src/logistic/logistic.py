@@ -97,9 +97,8 @@ def Train(args):
   print 'Wrote theta: %s' % lr.theta
 
 def Test(args):
-  outfile = '{0}.results'.format(args.test)
-  if os.path.isfile(outfile) and args.clear == False:
-    print 'Skipping test because "%s" exists' % outfile
+  if os.path.isfile(args.results) and args.clear == False:
+    print 'Skipping test because "%s" exists' % args.results
     return
   with open(args.theta, 'r') as f:
     mean = numpy.array(map(float, f.readline().split('\t')))
@@ -129,21 +128,22 @@ def Test(args):
     elif p == 0 and y[i] == 0:
       counts['TN'] += 1
   print counts
-  print "Outputting counts to %s" % outfile
-  with open(outfile, 'w') as f:
+  print "Outputting counts to %s" % args.results
+  with open(args.results, 'w') as f:
     for key, count in counts.iteritems():
       f.write("%s,%s\n" % (key, count))
       print '%s: %s' % (key, count)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--train',  default=None, type=str)
-  parser.add_argument('--test',   default=None, type=str)
-  parser.add_argument('--theta',  default=None, type=str)
-  parser.add_argument('--thresh', default=0.0000005, type=float)
-  parser.add_argument('--clear',  action='store_true')
-  parser.add_argument('--alpha',  default=0.0005, type=float, help='Learning rate')
-  parser.add_argument('--lam',    default=0.1, type=float, help='Theta penalty')
+  parser.add_argument('--train',   default=None, type=str)
+  parser.add_argument('--test',    default=None, type=str)
+  parser.add_argument('--theta',   default=None, type=str)
+  parser.add_argument('--results', default=None, type=str)
+  parser.add_argument('--thresh',  default=0.0000005, type=float)
+  parser.add_argument('--clear',   action='store_true')
+  parser.add_argument('--alpha',   default=0.0005, type=float, help='Learning rate')
+  parser.add_argument('--lam',     default=0.1, type=float, help='Theta penalty')
   args = parser.parse_args()
 
   if args.theta is None:
