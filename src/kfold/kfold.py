@@ -46,6 +46,8 @@ if __name__ == '__main__':
       'repo_trans',
       'user_user',
       'user_trans',
+      'repo_train',
+      'user_train',
   ]
   parser = argparse.ArgumentParser()
   parser.add_argument('--input', default='data', type=str)

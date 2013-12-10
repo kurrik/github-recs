@@ -11,10 +11,6 @@ import math
 import subprocess as sp
 from collections import Counter
 
-DATASETS = [
-    'golang_recent',
-]
-
 class ResultCounter(object):
   LABELS = frozenset(['TP', 'FP', 'TN', 'FN'])
 
@@ -97,6 +93,7 @@ class TestDataset(object):
       print
       print '--' * 40
       print 'ERROR: "%s" exited with nonzero response' % ' '.join(ex.cmd)
+      os.exit(1)
 
   def KFold(self):
     """ Creates every kfold train/test file."""
@@ -167,7 +164,7 @@ class TestDataset(object):
         self.__call([
           'python',
           'src/hierarchy/hierarchy.py',
-          '--thresh=%f'  % thresh,
+          '--thresh=%2.10f'  % thresh,
           '--ruleset=%s' % rulepath,
           '--test=%s'    % testpath,
           '--results=%s' % resultpath,
@@ -178,7 +175,7 @@ class TestDataset(object):
       results.AddFiles(resultpaths)
       results.Save(outpath)
 
-  def Logistic(self, thresh):
+  def Logistic(self, repo, mapping, thresh):
     trainglob = 'kfold/%s.*.train' % repo
     resultpaths = []
     for trainpath in glob.iglob(self.__dp(trainglob)):
@@ -193,9 +190,10 @@ class TestDataset(object):
         self.__call([
           'python',
           'src/logistic/logistic.py',
+          '--draw_costs',
           '--theta=%s'  % rulepath,
           '--train=%s'  % trainpath,
-          '--thresh=%f' % thresh,
+          '--thresh=%2.10f' % thresh,
         ])
       if not self.__exists(resultpath):
         self.__call([
@@ -236,7 +234,7 @@ if __name__ == '__main__':
         ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
       ],
       'logistic': [
-        ['repo_train', 'repos', LOGISTIC_THRESH],
+        ['repo_train', 'repos', 0.00001],
         ['user_train', 'users', LOGISTIC_THRESH],
       ],
     },
@@ -251,4 +249,3 @@ if __name__ == '__main__':
       ds.Hierarchy(table, mapping, thresh, iterations)
     for (table, mapping, thresh) in conf['logistic']:
       ds.Logistic(table, mapping, thresh)
-

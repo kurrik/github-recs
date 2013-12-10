@@ -8,6 +8,8 @@ import random
 import numpy
 import sys
 import os
+import os.path
+from subprocess import call
 
 def Sigmoid(x):
   return 1.0 / (1.0 + numpy.exp((-1)*x))
@@ -18,6 +20,16 @@ def Normalize(x, mean, stddev):
   x = (x - mean) / stddev
   const = numpy.array([1] * m).reshape(m, 1)
   return numpy.append(const, x, axis=1)
+
+def DrawCosts(costs, r, tmpdir, out):
+  if not os.path.isfile(r):
+    raise IOError("%s did not exist" % r)
+  datafile = os.path.join(tmpdir, 'logistic_cost')
+  with open(datafile, 'w') as f:
+    for i, cost in costs:
+      f.write("%i\t%4.10f\n" % (i, cost))
+  with open(r) as f:
+    call(['R', '--slave', '--no-save', datafile, out], stdin=f)
 
 class LogisticRegression:
   def __init__(self, X, Y, alpha=0.0005, lam=0.1):
@@ -43,6 +55,7 @@ class LogisticRegression:
     last = 1000000
     change = 1000000
     counter = 0
+    costs = []
     while change > thresh:
       h_theta = Sigmoid(numpy.dot(self.X, self.theta))
       diff = h_theta - self.Y
@@ -54,10 +67,12 @@ class LogisticRegression:
       change = abs(last - cost)
       last = cost
       counter += 1
+      costs.append((counter, cost))
       if counter % 100 == 0:
-        print "\rIteration %i\tCost: %2.10f\tChange: %2.10f" % (counter, cost, change),
+        print "\rIteration %i\tCost: %2.10f\tChange: %2.10f\tThresh: %2.10f" % (counter, cost, change, thresh),
         sys.stdout.flush()
     print
+    return costs
 
   def Theta(self):
     return self.theta
@@ -86,7 +101,14 @@ def Train(args):
   y = data[:,5]
   x = data[:,[2,3,4]]
   lr = LogisticRegression(x, y)
-  lr.Run(args.thresh)
+  costs = lr.Run(args.thresh)
+  if args.draw_costs:
+    path_graph = '{0}.costs.pdf'.format(args.train)
+    r_costs = os.path.join(os.path.dirname(__file__), args.r_costs)
+    if os.path.isfile(path_graph) and args.clear == False:
+      print 'Skipping creating "%s" because file exists' % path_graph
+    else:
+      DrawCosts(costs, r_costs, args.tmpdir, path_graph)
   writefloat = lambda x: '%2.20f' % x
   with open(args.theta, 'w') as f:
     f.write('\t'.join(map(writefloat, lr.mean)) + '\n')
@@ -136,14 +158,17 @@ def Test(args):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--train',   default=None, type=str)
-  parser.add_argument('--test',    default=None, type=str)
-  parser.add_argument('--theta',   default=None, type=str)
-  parser.add_argument('--results', default=None, type=str)
-  parser.add_argument('--thresh',  default=0.0000005, type=float)
-  parser.add_argument('--clear',   action='store_true')
-  parser.add_argument('--alpha',   default=0.0005, type=float, help='Learning rate')
-  parser.add_argument('--lam',     default=0.1, type=float, help='Theta penalty')
+  parser.add_argument('--train',      default=None, type=str)
+  parser.add_argument('--test',       default=None, type=str)
+  parser.add_argument('--theta',      default=None, type=str)
+  parser.add_argument('--results',    default=None, type=str)
+  parser.add_argument('--thresh',     default=0.0000005, type=float)
+  parser.add_argument('--clear',      action='store_true')
+  parser.add_argument('--alpha',      default=0.0005, type=float, help='Learning rate')
+  parser.add_argument('--lam',        default=0.1, type=float, help='Theta penalty')
+  parser.add_argument('--r_costs',    default='cost.r', type=str)
+  parser.add_argument('--draw_costs', action='store_true')
+  parser.add_argument('--tmpdir',     default='/tmp', type=str)
   args = parser.parse_args()
 
   if args.theta is None:
