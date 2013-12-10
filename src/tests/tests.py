@@ -232,7 +232,7 @@ if __name__ == '__main__':
         ('user_trans', 'users', APRIORI_MINSUP, APRIORI_MINCONF),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, 10],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000],
         ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
       ],
       'logistic': [
