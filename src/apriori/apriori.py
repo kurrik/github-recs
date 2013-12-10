@@ -58,6 +58,8 @@ def ParseRule(line):
     if part == '<-':
       in_cons = False
       continue
+    elif part == '':
+      break
     elif part[0] == '(':
       break
     if in_cons:

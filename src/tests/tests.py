@@ -18,14 +18,15 @@ class ResultCounter(object):
     self.counter = Counter()
 
   def GetMCC(self):
+    smooth = 1
     num = (
-        (self.counter['TP'] * self.counter['TN']) -
-        (self.counter['FP'] * self.counter['FN']))
+        ((self.counter['TP']+smooth) * (self.counter['TN']+smooth)) -
+        ((self.counter['FP']+smooth) * (self.counter['FN']+smooth)))
     den = math.sqrt(
-        (self.counter['TP'] + self.counter['FP']) *
-        (self.counter['TP'] + self.counter['FN']) *
-        (self.counter['TN'] + self.counter['FP']) *
-        (self.counter['TN'] + self.counter['FN']))
+        (((self.counter['TP']+smooth) + (self.counter['FP']+smooth)) *
+        ((self.counter['TP']+smooth) + (self.counter['FN']+smooth)) *
+        ((self.counter['TN']+smooth) + (self.counter['FP']+smooth)) *
+        ((self.counter['TN']+smooth) + (self.counter['FN']+smooth))))
     return float(num) / float(den)
 
   def GetAccuracy(self):
@@ -134,7 +135,7 @@ class TestDataset(object):
           '--test=%s'    % testpath,
           '--results=%s' % resultpath,
         ])
-    outpath = self.__rp('%s_apriori_%i_%i.csv' % (mapping, minsup, minconf))
+    outpath = self.__rp('%s_apriori.csv' % (mapping))
     if not self.__exists(outpath):
       results = ResultCounter()
       results.AddFiles(resultpaths)
@@ -169,7 +170,7 @@ class TestDataset(object):
           '--test=%s'    % testpath,
           '--results=%s' % resultpath,
         ])
-    outpath = self.__rp('%s_hierarchy_%s.csv' % (mapping, postfix))
+    outpath = self.__rp('%s_hierarchy.csv' % (mapping))
     if not self.__exists(outpath):
       results = ResultCounter()
       results.AddFiles(resultpaths)
@@ -203,7 +204,7 @@ class TestDataset(object):
           '--test=%s'    % testpath,
           '--results=%s' % resultpath,
         ])
-    outpath = self.__rp('%s_logistic_%s.csv' % (mapping, postfix))
+    outpath = self.__rp('%s_logistic.csv' % (mapping))
     if not self.__exists(outpath):
       results = ResultCounter()
       results.AddFiles(resultpaths)
@@ -254,12 +255,12 @@ if __name__ == '__main__':
     },
     'top_pushed_repos': {
       'apriori': [
-        ('repo_trans', 'repos', APRIORI_MINSUP, 50),
-        ('user_trans', 'users', APRIORI_MINSUP, 50),
+        ('repo_trans', 'repos', 1, 30),
+        ('user_trans', 'users', 2, 30),
       ],
       'hierarchy': [
-        ['repo_repo', 'repos', HIERARCHY_THRESH, HIERARCHY_ITER],
-        ['user_user', 'users', HIERARCHY_THRESH, HIERARCHY_ITER],
+        ['repo_repo', 'repos', HIERARCHY_THRESH, 1000],
+        ['user_user', 'users', HIERARCHY_THRESH, 1000],
       ],
       'logistic': [
         ['repo_train', 'repos', 0.00001],
