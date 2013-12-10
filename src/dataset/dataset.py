@@ -22,6 +22,9 @@ TABLE_ADHOC           = 'adhoc'
 TABLE_REPO_TRAIN_CAND = 'repo_train_cand'
 TABLE_REPO_TRAIN_EDGE = 'repo_train_edge'
 TABLE_REPO_TRAIN      = 'repo_train'
+TABLE_USER_TRAIN_CAND = 'user_train_cand'
+TABLE_USER_TRAIN_EDGE = 'user_train_edge'
+TABLE_USER_TRAIN      = 'user_train'
 
 EXPORT_TABLES = [
   TABLE_REPOS,
@@ -33,6 +36,7 @@ EXPORT_TABLES = [
   TABLE_REPO_EDGES,
   TABLE_USER_EDGES,
   TABLE_REPO_TRAIN,
+  TABLE_USER_TRAIN,
 ]
 
 class BigQuery(object):
@@ -243,6 +247,24 @@ class BigQuery(object):
     """.format(self.__Path(TABLE_REPO_EDGES))
     self.__Query(sql, TABLE_REPO_TRAIN_CAND)
 
+  def SelectUserTrainCandidates(self):
+    sql = """SELECT
+        a.id_a AS id_a,
+        b.id_b AS id_b,
+        COUNT(a.id_b) AS shared_count,
+        RATIO_TO_REPORT(shared_count) OVER() AS shared_count_ratio,
+        a.repos_ratio_a AS repos_ratio_a,
+        b.repos_ratio_b AS repos_ratio_b,
+        CONCAT(CONCAT(STRING(a.id_a),'-'),STRING(b.id_b)) AS id
+      FROM
+        [{0}] AS a
+        JOIN EACH [{0}] AS b
+        ON a.id_b = b.id_a
+      WHERE a.id_a != b.id_b
+      GROUP BY id_a, id_b, id, repos_ratio_a, repos_ratio_b
+    """.format(self.__Path(TABLE_USER_EDGES))
+    self.__Query(sql, TABLE_USER_TRAIN_CAND)
+
   def SelectRepoTrainEdges(self):
     sql = """SELECT
         1 AS is_edge,
@@ -251,6 +273,15 @@ class BigQuery(object):
         [{0}]
     """.format(self.__Path(TABLE_REPO_EDGES))
     self.__Query(sql, TABLE_REPO_TRAIN_EDGE)
+
+  def SelectUserTrainEdges(self):
+    sql = """SELECT
+        1 AS is_edge,
+        CONCAT(CONCAT(STRING(id_a),'-'),STRING(id_b)) AS id
+      FROM
+        [{0}]
+    """.format(self.__Path(TABLE_USER_EDGES))
+    self.__Query(sql, TABLE_USER_TRAIN_EDGE)
 
   def SelectRepoTrain(self):
     sql = """SELECT
@@ -268,6 +299,23 @@ class BigQuery(object):
         self.__Path(TABLE_REPO_TRAIN_CAND),
         self.__Path(TABLE_REPO_TRAIN_EDGE))
     self.__Query(sql, TABLE_REPO_TRAIN)
+
+  def SelectUserTrain(self):
+    sql = """SELECT
+      candidates.id_a AS id_a,
+      candidates.id_b AS id_b,
+      candidates.shared_count_ratio AS shared_count_ratio,
+      candidates.repos_ratio_a AS repos_ratio_a,
+      candidates.repos_ratio_b AS repos_ratio_b,
+      IFNULL(edges.is_edge, 0) AS is_edge
+    FROM
+      [{0}] AS candidates
+      LEFT OUTER JOIN [{1}] AS edges
+      ON candidates.id = edges.id
+    """.format(
+        self.__Path(TABLE_USER_TRAIN_CAND),
+        self.__Path(TABLE_USER_TRAIN_EDGE))
+    self.__Query(sql, TABLE_USER_TRAIN)
 
   def SelectUserEdges(self):
     sql = """
@@ -330,6 +378,9 @@ class BigQuery(object):
     query.SelectRepoTrainCandidates()
     query.SelectRepoTrainEdges()
     query.SelectRepoTrain()
+    query.SelectUserTrainCandidates()
+    query.SelectUserTrainEdges()
+    query.SelectUserTrain()
 
 if __name__ == '__main__':
   actions = ['select', 'query', 'export', 'copy_local']
