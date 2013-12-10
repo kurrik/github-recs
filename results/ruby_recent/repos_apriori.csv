@@ -1,0 +1,7 @@
+TN,11312
+FP,3
+TP,4
+FN,2
+MCC,0.588948
+Accuracy,0.999558
+Precision,0.571429
