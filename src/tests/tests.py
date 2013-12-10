@@ -148,12 +148,12 @@ class TestDataset(object):
         results.AddFiles(resultpaths)
         results.Save(outpath)
 
-  def Hierarchy(self, iterations, thresh):
+  def Hierarchy(self, thresh):
     repos = {
-      'repo_repo': 'repos',
-      'user_user': 'users',
+      'repo_repo': ('repos', 10),
+      'user_user': ('users', 10000),
     }
-    for repo, mapping in repos.iteritems():
+    for repo, (mapping, iterations) in repos.iteritems():
       trainglob = 'kfold/%s.*.train' % repo
       resultpaths = []
       for trainpath in glob.iglob(self.__dp(trainglob)):
@@ -196,12 +196,11 @@ if __name__ == '__main__':
   parser.add_argument('--k',          default=3, type=int)
   parser.add_argument('--minsup',     default=3, type=int)
   parser.add_argument('--minconf',    default=80, type=int)
-  parser.add_argument('--iter',       default=10000, type=int)
   parser.add_argument('--thresh',    default=0.005, type=float)
   args = parser.parse_args()
 
   ds = TestDataset(args.k, args.resultroot, args.dataroot, args.dataset)
   ds.KFold()
   ds.Apriori(args.minsup, args.minconf)
-  ds.Hierarchy(args.iter, args.thresh)
+  ds.Hierarchy(args.thresh)
 

@@ -144,14 +144,22 @@ def Train(args):
       DrawDendrogram(dend, r_dendrogram, args.tmpdir, path_graph)
 
   lh = []
-  for i in range(args.iter):
-    dend.markov()
-    print("Markov step %s: Likelihood: %s" % (i, dend.likelihood()))
-    lh.append((i, dend.likelihood()))
-  dend.save_train_file(5, args.ruleset)
+  postfix = ''
+  print
+  try:
+    for i in range(args.iter):
+      dend.markov()
+      print("\rMarkov step %s: Likelihood: %s" % (i, dend.likelihood())),
+      sys.stdout.flush()
+      lh.append((i, dend.likelihood()))
+  except KeyboardInterrupt:
+    # Allow Interrupt
+    postfix = '_incomplete'
+  print
+  dend.save_train_file(5, args.ruleset + postfix)
 
   if args.draw_dendrogram:
-    path_graph = '{0}.dendrogram_post.pdf'.format(args.train)
+    path_graph = '{0}.dendrogram_post{1}.pdf'.format(args.train, postfix)
     r_dendrogram = os.path.join(os.path.dirname(__file__), args.r_dendrogram)
     if os.path.isfile(path_graph) and args.clear == False:
       print 'Skipping creating "%s" because file exists' % path_graph
@@ -159,7 +167,7 @@ def Train(args):
       DrawDendrogram(dend, r_dendrogram, args.tmpdir, path_graph)
 
   if args.draw_likelihood:
-    path_graph = '{0}.likelihood.pdf'.format(args.train)
+    path_graph = '{0}.likelihood{1}.pdf'.format(args.train, postfix)
     r_likelihood = os.path.join(os.path.dirname(__file__), args.r_likelihood)
     if os.path.isfile(path_graph) and args.clear == False:
       print 'Skipping creating "%s" because file exists' % path_graph
