@@ -129,14 +129,14 @@ def Train(args):
   dend = dendrogram.Dendrogram(graph)
 
   if args.draw_network:
-    path_graph = '{0}.network.pdf'.format(args.train)
+    path_graph = '{0}.network.pdf'.format(args.ruleset)
     if os.path.isfile(path_graph) and args.clear == False:
       print 'Skipping creating "%s" because file exists' % path_graph
     else:
       DrawGraph(dend, args.tmpdir, path_graph)
 
   if args.draw_dendrogram:
-    path_graph = '{0}.dendrogram_pre.pdf'.format(args.train)
+    path_graph = '{0}.dendrogram_pre.pdf'.format(args.ruleset)
     r_dendrogram = os.path.join(os.path.dirname(__file__), args.r_dendrogram)
     if os.path.isfile(path_graph) and args.clear == False:
       print 'Skipping creating "%s" because file exists' % path_graph
@@ -159,7 +159,7 @@ def Train(args):
   dend.save_train_file(5, args.ruleset + postfix)
 
   if args.draw_dendrogram:
-    path_graph = '{0}.dendrogram_post{1}.pdf'.format(args.train, postfix)
+    path_graph = '{0}.dendrogram_post{1}.pdf'.format(args.ruleset, postfix)
     r_dendrogram = os.path.join(os.path.dirname(__file__), args.r_dendrogram)
     if os.path.isfile(path_graph) and args.clear == False:
       print 'Skipping creating "%s" because file exists' % path_graph
@@ -167,12 +167,9 @@ def Train(args):
       DrawDendrogram(dend, r_dendrogram, args.tmpdir, path_graph)
 
   if args.draw_likelihood:
-    path_graph = '{0}.likelihood{1}.pdf'.format(args.train, postfix)
+    path_graph = '{0}.likelihood{1}.pdf'.format(args.ruleset, postfix)
     r_likelihood = os.path.join(os.path.dirname(__file__), args.r_likelihood)
-    if os.path.isfile(path_graph) and args.clear == False:
-      print 'Skipping creating "%s" because file exists' % path_graph
-    else:
-      DrawLikelihood(lh, r_likelihood, args.tmpdir, path_graph)
+    DrawLikelihood(lh, r_likelihood, args.tmpdir, path_graph)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()

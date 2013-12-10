@@ -103,12 +103,9 @@ def Train(args):
   lr = LogisticRegression(x, y)
   costs = lr.Run(args.thresh)
   if args.draw_costs:
-    path_graph = '{0}.costs.pdf'.format(args.train)
+    path_graph = '{0}.costs.pdf'.format(args.theta)
     r_costs = os.path.join(os.path.dirname(__file__), args.r_costs)
-    if os.path.isfile(path_graph) and args.clear == False:
-      print 'Skipping creating "%s" because file exists' % path_graph
-    else:
-      DrawCosts(costs, r_costs, args.tmpdir, path_graph)
+    DrawCosts(costs, r_costs, args.tmpdir, path_graph)
   writefloat = lambda x: '%2.20f' % x
   with open(args.theta, 'w') as f:
     f.write('\t'.join(map(writefloat, lr.mean)) + '\n')
