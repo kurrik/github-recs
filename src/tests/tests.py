@@ -298,6 +298,13 @@ if __name__ == '__main__':
     },
   }
 
+  runs = {
+    'top_user_repos': {
+      'apriori': [
+        ('repo_trans', 'repos', APRIORI_MINSUP, APRIORI_MINCONF),
+      ],
+    },
+  }
   for dataset, conf in runs.iteritems():
     ds = TestDataset(args.k, args.resultroot, args.dataroot, dataset)
     ds.KFold()
